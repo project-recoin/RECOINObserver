@@ -8,7 +8,7 @@ import com.recoin.bin.BinManager;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 
-public class ReceiveLogRECOIN_Twitter {
+public class Main {
 
   private static String EXCHANGE_NAME = "twitter_RECOIN";
 
@@ -45,18 +45,15 @@ public class ReceiveLogRECOIN_Twitter {
     QueueingConsumer consumer = new QueueingConsumer(channel);	
     channel.basicConsume(queueName, true, consumer);
     
-    
+    //this kicks everything off!!!
     BinManager binManager = new BinManager(100);
-    
+    JSONObject dataToProcess;
     while (true) {
       QueueingConsumer.Delivery delivery = consumer.nextDelivery();
       String message = new String(delivery.getBody());
-      JSONObject jsonClassEntry = (JSONObject) JSONSerializer.toJSON(message);
+      dataToProcess = (JSONObject) JSONSerializer.toJSON(message);
       //System.out.println(jsonClassEntry.toString(4));   
-      binManager.processData(jsonClassEntry);
-      
-      
-      
+      binManager.processData(dataToProcess);    
     }
   }	
 }
