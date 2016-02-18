@@ -46,7 +46,7 @@ public class Main {
 		channel.basicConsume(queueName, true, consumer);
 
 		// this kicks everything off!!!
-		BinManager binManager = new BinManager(10);
+		BinManager binManager = new BinManager(100);
 		JSONObject dataToProcess;
 		while (true) {
 			QueueingConsumer.Delivery delivery = consumer.nextDelivery();
