@@ -19,11 +19,8 @@ import org.jfree.date.DateUtilities;
 
 import com.recoin.functions.MiscFunctions;
 
-
-
 public class MiscFunctions {
-	
-	
+
 	public static Date createUTCDate(String dateStr) {
 		Date date;
 		try {
@@ -43,84 +40,70 @@ public class MiscFunctions {
 
 	}
 
-	
 	public static String createYYYYMMDDHHString(String dateStr) {
 		Date date;
 		try {
-		
-				DateFormat dateFormat = new SimpleDateFormat(
-						"yyyy-MM-dd hh:mm:ss");
-				date = dateFormat.parse(dateStr);
-				
-				DateFormat dateFormatNew = new SimpleDateFormat("yyyyMMdd");
-				String date_to_string = dateFormatNew.format(date);
-				//append the hour
-				date_to_string = date_to_string+"00";
-				return date_to_string;
 
-			
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+			date = dateFormat.parse(dateStr);
+
+			DateFormat dateFormatNew = new SimpleDateFormat("yyyyMMdd");
+			String date_to_string = dateFormatNew.format(date);
+			// append the hour
+			date_to_string = date_to_string + "00";
+			return date_to_string;
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			return null;
 		}
 
 	}
-	
-	
-	public static String decreaseYYYYMMDDHHStringDateByDays(String dateStr, int days) {
+
+	public static String decreaseYYYYMMDDHHStringDateByDays(String dateStr,
+			int days) {
 		Date date;
 		try {
-		
-				DateFormat dateFormat = new SimpleDateFormat(
-						"yyyyMMddhh");
-				date = dateFormat.parse(dateStr);
-				Date decrement = DateUtils.addDays(date, -days);
-				
-				DateFormat dateFormatNew = new SimpleDateFormat("yyyyMMdd");
-				String date_to_string = dateFormatNew.format(decrement);
-				//append the hour
-				date_to_string = date_to_string+"00";
-				return date_to_string;
 
-			
+			DateFormat dateFormat = new SimpleDateFormat("yyyyMMddhh");
+			date = dateFormat.parse(dateStr);
+			Date decrement = DateUtils.addDays(date, -days);
+
+			DateFormat dateFormatNew = new SimpleDateFormat("yyyyMMdd");
+			String date_to_string = dateFormatNew.format(decrement);
+			// append the hour
+			date_to_string = date_to_string + "00";
+			return date_to_string;
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			return null;
 		}
 
 	}
-	
-	public static String convertDateTimeToString(Date date){
-		SimpleDateFormat dateformatyyyyMMdd = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+	public static String convertDateTimeToString(Date date) {
+		SimpleDateFormat dateformatyyyyMMdd = new SimpleDateFormat(
+				"yyyy-MM-dd HH:mm");
 		String date_to_string = dateformatyyyyMMdd.format(date);
 		return date_to_string;
-		
-	}
-	
-	
-	public static long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
-	    long diffInMillies = date2.getTime() - date1.getTime();
-	    return timeUnit.convert(diffInMillies,TimeUnit.MILLISECONDS);
-	}
-	
 
-	
-	
-	public static String wordsToReplace(String word){
+	}
+
+	public static long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
+		long diffInMillies = date2.getTime() - date1.getTime();
+		return timeUnit.convert(diffInMillies, TimeUnit.MILLISECONDS);
+	}
+
+	public static String wordsToReplace(String word) {
 		return word.replaceAll("[^A-Za-z0-9]", "");
 	}
-	
+
 	public static Date getTimestampToMinute(Date timestamp) {
 		// TODO Auto-generated method stub
 		String tmp = MiscFunctions.convertDateTimeToString(timestamp);
-		//System.out.println(MiscFunctions.createUTCDate(tmp));
+		// System.out.println(MiscFunctions.createUTCDate(tmp));
 		return MiscFunctions.createUTCDate(tmp);
 	}
-	
-	
-	
+
 }
-
-
-
-
