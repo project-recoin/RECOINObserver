@@ -58,6 +58,7 @@ public class Main {
 		BinManager binManager = new BinManager(config);
 		JSONObject dataToProcess;
 		while (true) {
+			
 			QueueingConsumer.Delivery delivery = consumer.nextDelivery();
 			String message = new String(delivery.getBody());
 			dataToProcess = (JSONObject) JSONSerializer.toJSON(message);

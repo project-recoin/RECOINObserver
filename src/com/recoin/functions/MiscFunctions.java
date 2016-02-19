@@ -92,7 +92,7 @@ public class MiscFunctions {
 
 	public static String convertDateTimeToString(Date date) {
 		SimpleDateFormat dateformatyyyyMMdd = new SimpleDateFormat(
-				"yyyy-MM-dd HH:mm");
+				"yyyy-MM-dd HH:mm:ss");
 		String date_to_string = dateformatyyyyMMdd.format(date);
 		return date_to_string;
 
@@ -126,6 +126,7 @@ public class MiscFunctions {
 				String jsonTxt = IOUtils.toString(is);
 				observerConfig = (JSONObject) JSONSerializer.toJSON(jsonTxt.toString());
 			}
+			System.out.println("Loaded config");
 			return observerConfig;
 		} catch (Exception e) {
 			e.printStackTrace();

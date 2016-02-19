@@ -38,7 +38,7 @@ public class MongoDBController {
 		this.username = username;
 		this.password = password;
 		// collectionName = "";
-		collections = new HashMap<>();
+		collections = new HashMap<String, DBCollection>();
 
 	}
 
@@ -90,11 +90,9 @@ public class MongoDBController {
 
 	}
 
-	public boolean InsertDataIntoCollection(String collectionName,
-			JSONObject document) {
+	public boolean InsertDataIntoCollection(String collectionName, JSONObject document) {
 
 		try {
-
 			Object o = com.mongodb.util.JSON.parse(document.toString());
 			DBObject dbObj = (DBObject) o;
 
@@ -102,8 +100,8 @@ public class MongoDBController {
 			// .append("created_at", "a time");
 			collections.get(collectionName).insert(dbObj);
 			// client.close();
-			System.out.println("Successfully Inserted Data into Collection: "
-					+ collectionName);
+//			System.out.println("Successfully Inserted Data into Collection: "
+//					+ collectionName);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -124,10 +122,11 @@ public class MongoDBController {
 	 *            - the string identifer related to the project name
 	 * @return Boolean. True if the record already exists!
 	 */
-	public boolean queryCollectionForExistingProjectName(String collectionName,
-			String projectName) {
+	public boolean queryCollectionForExistingProjectName(String collectionName, String projectName) {
 
 		try {
+			System.out.println("Querying for record in collection: "+ collectionName);
+
 			JSONObject proj = new JSONObject();
 			proj.put("project_name", projectName);	
 			Object o = com.mongodb.util.JSON.parse(proj.toString());
@@ -138,8 +137,11 @@ public class MongoDBController {
 
 			if(iterable.hasNext()){
 				System.out.println("Successfully found Project in RECOIN_projects: "+ iterable.next().toString());
-			}		
-			return true;
+				return true;
+
+			}else{
+				return false;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err

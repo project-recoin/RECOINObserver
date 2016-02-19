@@ -12,6 +12,7 @@ import net.sf.json.JSONObject;
 
 import com.recoin.bin.objects.TwitterBin;
 import com.recoin.database.mongo.MongoDBController;
+import com.recoin.functions.MiscFunctions;
 import com.recoin.observer.ObserverConfig;
 
 public class BinManager {
@@ -47,10 +48,31 @@ public class BinManager {
 
 	public BinManager(ObserverConfig config) {
 		
+		tweetBins = new HashMap<String, TwitterBin>();
+		tweetBinsActive = new HashMap<String, Boolean>();
+		
 		this.binThreshold = config.getBinthreshHoldValue_tweets();
 		this.maxBins = config.getMaxBins();
 		this.includeRetweets = config.getIncludeRetweets();
 		this.binDropHours = config.getBinDropTimeout_hours();
+		
+		
+		System.out.printf("Bin Manager Configured, threshold: %d \n"
+				+ "maxBins %d \n"
+				+ "includeRetweets: %s \n"
+				+ "binDrop: %d hours \n",
+				binThreshold, maxBins, includeRetweets,binDropHours);
+
+		
+		// this needs a config file to make it more configurable
+				if (initProjDBConnection()) {
+					System.out.println("Connected to RECOIN Projects Database");
+				}
+
+				if (initBinsDBConnection()) {
+					System.out.println("Connected to Bins Database");
+				}
+		
 	}
 
 	private boolean initProjDBConnection() {
@@ -80,6 +102,7 @@ public class BinManager {
 
 		if(!includeRetweets && incommingData.getBoolean("isRetweet")){
 			//avoid it's a retweet
+			//System.out.println("It's a retweet!");
 		}else{
 //		//first check retweet flag...
 //		if((incommingData.getBoolean("isRetweet") && includeRetweets) 
@@ -93,10 +116,9 @@ public class BinManager {
 					word = tokens.nextToken();
 					if (word.startsWith("#")) {
 						word = word.replace("#", "").toLowerCase();
-	
 						boolean hasSpecialChar = p.matcher(word).find();
 						if (!hasSpecialChar) {
-							// System.out.println("Matches: "+word);
+							//System.out.println("Matches: "+word);
 							addDataToBin(word, incommingData, "#");
 						}
 	
@@ -165,12 +187,13 @@ public class BinManager {
 			// project Object!
 			insertNewbinData(binToProcess);
 		} else {
-			tweetBinsActive.put(binToProcess.getBinName(), true);
 			// create new project entry!
 			if (createNewProjectDBEntry(binToProcess.getBinName())) {
 				// then insert the bin.
 				insertNewbinData(binToProcess);
 			}
+			tweetBinsActive.put(binToProcess.getBinName(), true);
+
 
 		}
 
@@ -189,9 +212,7 @@ public class BinManager {
 		// //first need to check the index of data that needs to be inserted
 		// from
 		 for(int i = binToProcess.getSubmittedToDatabaseBinSize(); i<binToProcess.getBinItems().size(); i++){
-		
-			 
-			 System.out.printf("Bin index: %d, Document: %s \n",i,binToProcess.getBinItems().get(i).get("timestamp"));
+			 System.out.printf("Bin Name: %s, Document: %s \n",binToProcess.getBinName(),binToProcess.getBinItems().get(i).get("timestamp"));
 			 dbControllerBins.InsertDataIntoCollection(binToProcess.getBinName(),binToProcess.getBinItems().get(i));		
 		 }
 		 binToProcess.setSubmittedToDatabaseBinSize(binToProcess.getBinItems().size());
@@ -204,15 +225,13 @@ public class BinManager {
 
 		// first we need to a check to see if the project already exists in the
 		// DB...
-		if (!dbControllerProjects.queryCollectionForExistingProjectName(
-				"project_list", binName)) {
-
+		if (!dbControllerProjects.queryCollectionForExistingProjectName("project_list", binName)) {
 			try {
-				dbControllerProjects.InsertDataIntoCollection("project_list",
-						createProjectObject(binName));
+				dbControllerProjects.InsertDataIntoCollection("project_list",createProjectObject(binName));
 				dbControllerBins.connectToCollection(binName);
 				return true;
 			} catch (Exception e) {
+				e.printStackTrace();
 				return false;
 			}
 		} else {
@@ -265,9 +284,8 @@ public class BinManager {
 		proj.put("project_name", binName);
 		proj.put("project_start_timestamp", "");
 		proj.put("project_end_timestamp", "");
-		proj.put("project_started", "false");
-		proj.put("project_completed", "false");
-		proj.put("observed", new Date().toGMTString());
+		proj.put("project_status", "empty");
+		proj.put("observed", MiscFunctions.convertDateTimeToString(new Date()));
 		proj.put("identifier", binName);
 		JSONArray binIDs = new JSONArray();
 		binIDs.add(binName);
