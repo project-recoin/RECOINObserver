@@ -1,5 +1,8 @@
 package com.recoin.functions;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,6 +17,11 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.jfree.date.DateUtilities;
 
@@ -105,5 +113,28 @@ public class MiscFunctions {
 		// System.out.println(MiscFunctions.createUTCDate(tmp));
 		return MiscFunctions.createUTCDate(tmp);
 	}
+	
+	
+	
+	public static JSONObject loadKeys(String configFilePathAndName) {
+
+		try {
+			JSONObject observerConfig = new JSONObject();
+			File f = new File(configFilePathAndName);
+			if (f.exists()) {
+				InputStream is = new FileInputStream(configFilePathAndName);
+				String jsonTxt = IOUtils.toString(is);
+				observerConfig = (JSONObject) JSONSerializer.toJSON(jsonTxt.toString());
+			}
+			return observerConfig;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Looks like your config/observer_config.json file is missing, or wrongly formatted. "
+					+ "I'd go and check if I was you....");
+			return new JSONObject();
+		}
+
+	}
+	
 
 }

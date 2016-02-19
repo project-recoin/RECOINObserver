@@ -12,6 +12,7 @@ import net.sf.json.JSONObject;
 
 import com.recoin.bin.objects.TwitterBin;
 import com.recoin.database.mongo.MongoDBController;
+import com.recoin.observer.ObserverConfig;
 
 public class BinManager {
 
@@ -19,6 +20,9 @@ public class BinManager {
 	private HashMap<String, Boolean> tweetBinsActive;
 
 	private int binThreshold;
+	private int maxBins;
+	private boolean includeRetweets;
+	private int binDropHours;
 
 	MongoDBController dbControllerProjects;
 	MongoDBController dbControllerBins;
@@ -39,6 +43,14 @@ public class BinManager {
 		if (initBinsDBConnection()) {
 			System.out.println("Connected to Bins Database");
 		}
+	}
+
+	public BinManager(ObserverConfig config) {
+		
+		this.binThreshold = config.getBinthreshHoldValue_tweets();
+		this.maxBins = config.getMaxBins();
+		this.includeRetweets = config.getIncludeRetweets();
+		this.binDropHours = config.getBinDropTimeout_hours();
 	}
 
 	private boolean initProjDBConnection() {
@@ -66,28 +78,36 @@ public class BinManager {
 
 	public void processData(JSONObject incommingData) {
 
-		StringTokenizer tokens = new StringTokenizer(
-				incommingData.getString("text"));
-		String word = "";
-		while (tokens.hasMoreTokens()) {
-			try {
-				word = tokens.nextToken();
-				if (word.startsWith("#")) {
-					word = word.replace("#", "").toLowerCase();
-
-					boolean hasSpecialChar = p.matcher(word).find();
-					if (!hasSpecialChar) {
-						// System.out.println("Matches: "+word);
-						addDataToBin(word, incommingData, "#");
+		if(!includeRetweets && incommingData.getBoolean("isRetweet")){
+			//avoid it's a retweet
+		}else{
+//		//first check retweet flag...
+//		if((incommingData.getBoolean("isRetweet") && includeRetweets) 
+//				|| (!incommingData.getBoolean("isRetweet") && includeRetweets)
+//				|| (!incommingData.getBoolean("isRetweet") && !includeRetweets)){
+			
+			StringTokenizer tokens = new StringTokenizer(incommingData.getString("text"));
+			String word = "";
+			while (tokens.hasMoreTokens()) {
+				try {
+					word = tokens.nextToken();
+					if (word.startsWith("#")) {
+						word = word.replace("#", "").toLowerCase();
+	
+						boolean hasSpecialChar = p.matcher(word).find();
+						if (!hasSpecialChar) {
+							// System.out.println("Matches: "+word);
+							addDataToBin(word, incommingData, "#");
+						}
+	
+						//
 					}
-
-					//
+					// if(word.startsWith("@")){
+					// addDataToBin(word, incommingData);
+					// }
+				} catch (Exception e) {
+	
 				}
-				// if(word.startsWith("@")){
-				// addDataToBin(word, incommingData);
-				// }
-			} catch (Exception e) {
-
 			}
 		}
 
@@ -201,6 +221,34 @@ public class BinManager {
 			return true;
 		}
 
+	}
+	
+	
+	/**
+	 * A method to clean up both the cached bins....
+	 * relies on config max bin value
+	 * @return Boolean if cleaned.
+	 */
+	private boolean binCleanup(){
+		try{
+			if(tweetBins.size()> maxBins){
+				//need to remove bins which have been active but are not large....
+				for(Entry<String, TwitterBin> bin : tweetBins.entrySet()){
+					if(bin.getValue().getBinItems().size() <binThreshold){
+						//it's below the threshold, so we can delete it, probably...
+						tweetBins.remove(bin.getKey());
+						tweetBinsActive.remove(bin.getKey());	
+					}					
+				}
+			}
+			
+			return true;
+			
+		}catch(Exception e){
+			System.out.println("Bin Cleanup: Something went wrong, oops!");
+			return false;
+		}
+		
 	}
 
 	/*

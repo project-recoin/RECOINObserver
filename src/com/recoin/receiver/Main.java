@@ -5,6 +5,8 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.QueueingConsumer;
 import com.recoin.bin.BinManager;
+import com.recoin.functions.MiscFunctions;
+import com.recoin.observer.ObserverConfig;
 
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
@@ -24,6 +26,13 @@ public class Main {
 			}
 		} catch (Exception e) {
 
+		}
+		
+		ObserverConfig config = null;
+		try{
+			config = new ObserverConfig(MiscFunctions.loadKeys("config/observer_config.json"));
+		}catch(Exception e){
+			System.exit(1);
 		}
 
 		ConnectionFactory factory = new ConnectionFactory();
@@ -46,7 +55,7 @@ public class Main {
 		channel.basicConsume(queueName, true, consumer);
 
 		// this kicks everything off!!!
-		BinManager binManager = new BinManager(100);
+		BinManager binManager = new BinManager(config);
 		JSONObject dataToProcess;
 		while (true) {
 			QueueingConsumer.Delivery delivery = consumer.nextDelivery();
@@ -56,4 +65,8 @@ public class Main {
 			binManager.processData(dataToProcess);
 		}
 	}
+	
+	
+	
+	
 }
