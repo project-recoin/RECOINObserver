@@ -118,6 +118,7 @@ public class BinManager {
 						word = word.replace("#", "").toLowerCase();
 						boolean hasSpecialChar = p.matcher(word).find();
 						if (!hasSpecialChar) {
+							incommingData.put("media_url", "");
 							//System.out.println("Matches: "+word);
 							addDataToBin(word, incommingData, "#");
 						}
