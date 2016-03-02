@@ -219,6 +219,18 @@ public class BinManager {
 		 binToProcess.setSubmittedToDatabaseBinSize(binToProcess.getBinItems().size());
 		 binToProcess.setNewDatatoInsert(false);
 		//
+		 
+		 //need to complete empty bin becasue of heap size issues
+		 if(binToProcess.getSubmittedToDatabaseBinSize() > 100000){
+			 try{
+				 binToProcess.getBinItems().clear();
+				 binToProcess.setSubmittedToDatabaseBinSize(binToProcess.getBinItems().size());
+			 }catch(Exception e1){
+				 
+			 }
+			 
+		 }
+		 
 
 	}
 
