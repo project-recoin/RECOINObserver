@@ -7,6 +7,7 @@ import com.rabbitmq.client.QueueingConsumer;
 import com.recoin.bin.BinManager;
 import com.recoin.functions.MiscFunctions;
 import com.recoin.observer.ObserverConfig;
+import com.recoin.observer.api.ObserverRabbitServer;
 
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
@@ -35,6 +36,19 @@ public class Main {
 			System.exit(1);
 		}
 
+		JSONObject rabbitConfig = null;
+		try{
+			rabbitConfig = MiscFunctions.loadKeys("config/rabbitMQ_config.json");
+			System.out.println("RabbitMQ server Config found");
+		}catch(Exception e){
+			System.exit(1);
+		}
+
+		
+		ObserverRabbitServer outboundRabbitServer =  new ObserverRabbitServer(rabbitConfig);
+		
+		
+		//inbound RabbitMQ connection
 		ConnectionFactory factory = new ConnectionFactory();
 		// factory.setHost("localhost");
 		factory.setHost("socpub.cloudapp.net");
@@ -48,8 +62,6 @@ public class Main {
 		channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
 		String queueName = channel.queueDeclare().getQueue();
 		channel.queueBind(queueName, EXCHANGE_NAME, "");
-
-		// System.out.println(" [*] Waiting for messages. To exit press CTRL+C. ExchangeName: "+EXCHANGE_NAME);
 
 		QueueingConsumer consumer = new QueueingConsumer(channel);
 		channel.basicConsume(queueName, true, consumer);

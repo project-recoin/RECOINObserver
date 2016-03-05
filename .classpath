@@ -34,5 +34,6 @@
 	<classpathentry kind="lib" path="lib/mongodb-driver-3.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/mongodb-driver-core-3.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/bson-3.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/jzmq-2.1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
