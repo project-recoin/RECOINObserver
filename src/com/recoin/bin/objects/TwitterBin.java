@@ -3,6 +3,8 @@ package com.recoin.bin.objects;
 import java.util.ArrayList;
 import java.util.Date;
 
+import com.ramine.functions.MiscFunctions;
+
 import net.sf.json.JSONObject;
 
 public class TwitterBin {
@@ -15,6 +17,7 @@ public class TwitterBin {
 	private int submittedToDatabaseBinSize;
 	private String binIdentfier;
 	private boolean newDatatoInsert;
+	private JSONObject jsonRepresentation;
 
 	public TwitterBin() {
 
@@ -89,6 +92,17 @@ public class TwitterBin {
 	
 	public boolean isNewDatatoInsert() {
 		return newDatatoInsert;
+	}
+	
+	
+	public JSONObject getJSONRepresentation(){
+		
+		jsonRepresentation = new JSONObject();
+		jsonRepresentation.put("bin_name", BinName);
+		jsonRepresentation.put("bin_size", binItems.size());
+		jsonRepresentation.put("timestamp", MiscFunctions.convertDateTimeToString(binStartTimestamp));
+
+		return jsonRepresentation;
 	}
 	
 }

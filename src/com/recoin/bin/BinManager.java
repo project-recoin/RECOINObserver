@@ -14,6 +14,7 @@ import com.recoin.bin.objects.TwitterBin;
 import com.recoin.database.mongo.MongoDBController;
 import com.recoin.functions.MiscFunctions;
 import com.recoin.observer.ObserverConfig;
+import com.recoin.observer.api.ObserverRabbitServer;
 
 public class BinManager {
 
@@ -24,6 +25,7 @@ public class BinManager {
 	private int maxBins;
 	private boolean includeRetweets;
 	private int binDropHours;
+	private ObserverRabbitServer rabbitMQServerOutbound;
 
 	MongoDBController dbControllerProjects;
 	MongoDBController dbControllerBins;
@@ -141,6 +143,7 @@ public class BinManager {
 		if (tweetBins.containsKey(binID)) {
 			tweetBins.get(binID).getBinItems().add(data);
 			tweetBins.get(binID).setNewDatatoInsert(true);
+			getRabbitMQServerOutbound().emitDataToChannel("internal_cache", tweetBins.get(binID).getJSONRepresentation());
 			// System.out.println("Active Bin Size: "+tweetBins.get(binID).getBinItems().size());
 		} else {
 			TwitterBin newBin = new TwitterBin();
@@ -150,8 +153,8 @@ public class BinManager {
 			newBin.getBinItems().add(data);
 			newBin.setNewDatatoInsert(true);
 			tweetBins.put(binID, newBin);
+			getRabbitMQServerOutbound().emitDataToChannel("internal_cache", newBin.getJSONRepresentation());
 			// System.out.println("new Bin Created for String:"+binID);
-
 		}
 
 		if (checkBinsforSize()) {
@@ -168,11 +171,15 @@ public class BinManager {
 			if (bin.getValue().getBinItems().size() > binThreshold) {
 				//System.out.println("threshold met: " + bin.getKey());
 				// send the item to
-				
+				//RabbitMQ it!
+				getRabbitMQServerOutbound().emitDataToChannel("active_bins", bin.getValue().getJSONRepresentation());
 				//don't cycle through the data if there isn't new documents to insert!
 				if(bin.getValue().isNewDatatoInsert()){
 					processBinForDataStorage(bin.getValue());
 				}
+			}else{
+				//report to RabbitMQ 
+
 			}
 
 		}
@@ -186,6 +193,7 @@ public class BinManager {
 		if (tweetBinsActive.containsKey(binToProcess.getBinName())) {
 			// This is not a new project, so we dont need to insert a new
 			// project Object!
+			getRabbitMQServerOutbound().emitDataToChannel("active_project", createProjectObject(binToProcess.getBinName()));
 			insertNewbinData(binToProcess);
 		} else {
 			// create new project entry!
@@ -304,6 +312,14 @@ public class BinManager {
 		binIDs.add(binName);
 		proj.put("bin_ids", binIDs);
 		return proj;
+	}
+
+	public void setRabbitMQController(ObserverRabbitServer outboundRabbitServer) {
+		this.rabbitMQServerOutbound = outboundRabbitServer;	
+	}
+	
+	public ObserverRabbitServer getRabbitMQServerOutbound() {
+		return rabbitMQServerOutbound;
 	}
 
 }

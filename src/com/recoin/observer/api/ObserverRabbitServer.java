@@ -18,9 +18,15 @@ public class ObserverRabbitServer {
 	public ObserverRabbitServer(JSONObject serverConfig) throws IOException {
 
 		ConnectionFactory factory = new ConnectionFactory();
-		factory.setHost("localhost");
-		// factory.setUsername("guest");
-		// factory.setPassword("sociam2015");
+		factory.setHost("socpub.cloudapp.net");
+		// factory.setPort(34156);
+		factory.setUsername("guest");
+		factory.setPassword("sociam2015");
+		
+		
+//		factory.setHost("localhost");
+//		// factory.setUsername("guest");
+//		// factory.setPassword("sociam2015");
 		connection = factory.newConnection();
 
 		channel_map = new HashMap<>();
@@ -29,7 +35,7 @@ public class ObserverRabbitServer {
 		for (int i = 0; i < channelList.size(); i++) {
 
 			channel_map.put(channelList.getString(i), createChannel(channelList.getString(i)));
-			System.out.printf("Added new RabbitMQ Broadcast channel: %s", channelList.get(i));
+			System.out.printf("Added new RabbitMQ Broadcast channel: %s \n", channelList.get(i));
 		}
 
 	}
@@ -44,6 +50,20 @@ public class ObserverRabbitServer {
 			return null;
 		}
 
+	}
+	
+	
+	public void emitDataToChannel(String channelName, JSONObject jsonObject){
+		
+		try{
+			channel_map.get(channelName).basicPublish(channelName, "", null, jsonObject.toString().getBytes());
+		}catch(Exception e){
+			
+			
+		}
+		
+		
+		
 	}
 
 	public void setConnection(Connection connection) {

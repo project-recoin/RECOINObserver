@@ -68,6 +68,8 @@ public class Main {
 
 		// this kicks everything off!!!
 		BinManager binManager = new BinManager(config);
+		
+		binManager.setRabbitMQController(outboundRabbitServer);
 		JSONObject dataToProcess;
 		while (true) {
 			
