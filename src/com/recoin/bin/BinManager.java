@@ -1,6 +1,7 @@
 package com.recoin.bin;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -27,6 +28,8 @@ public class BinManager {
 	private int binDropHours;
 	private ObserverRabbitServer rabbitMQServerOutbound;
 
+	private HashMap<String, Boolean> blackListWords;
+	
 	MongoDBController dbControllerProjects;
 	MongoDBController dbControllerBins;
 
@@ -76,7 +79,24 @@ public class BinManager {
 				}
 		
 	}
+	
+	private boolean resetDatabaseConnections() {
+		try {
+			if (initProjDBConnection()) {
+				System.out.println("ReConnected to RECOIN Projects Database");
+			}
 
+			if (initBinsDBConnection()) {
+				System.out.println("ReConnected to Bins Database");
+			}
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+	
+	
 	private boolean initProjDBConnection() {
 		try {
 			dbControllerProjects = new MongoDBController("recoin.cloudapp.net",
@@ -111,50 +131,84 @@ public class BinManager {
 //				|| (!incommingData.getBoolean("isRetweet") && includeRetweets)
 //				|| (!incommingData.getBoolean("isRetweet") && !includeRetweets)){
 			
+			
+			ArrayList<String> hashtags= new ArrayList<String>();
+			HashMap<String, Boolean> hashtags_map = new HashMap<String, Boolean>();
 			StringTokenizer tokens = new StringTokenizer(incommingData.getString("text"));
 			String word = "";
+			boolean toProcess = false;
 			while (tokens.hasMoreTokens()) {
 				try {
 					word = tokens.nextToken();
-					if (word.startsWith("#")) {
-						word = word.replace("#", "").toLowerCase();
-						boolean hasSpecialChar = p.matcher(word).find();
-						if (!hasSpecialChar) {
-							incommingData.put("media_url", "");
-							//System.out.println("Matches: "+word);
-							addDataToBin(word, incommingData, "#");
+					
+					//check against blacklist
+					if(!blackListWords.containsKey(word.replace("#", "").toLowerCase())){
+					
+						if (word.startsWith("#")) {
+							word = word.replace("#", "").toLowerCase();
+							boolean hasSpecialChar = p.matcher(word).find();
+							if (!hasSpecialChar) {
+								toProcess = true;
+								hashtags_map.put(word, true);
+								//
+								//System.out.println("Matches: "+word);
+								//addDataToBin(word, incommingData, "#");
+							}
+		
+							//
 						}
-	
-						//
 					}
 					// if(word.startsWith("@")){
-					// addDataToBin(word, incommingData);
 					// }
 				} catch (Exception e) {
 	
+				}
+			}
+			if(toProcess){
+				
+				for(Entry<String, Boolean> wrd: hashtags_map.entrySet()){
+					hashtags.add(wrd.getKey());
+				}
+				
+				String iden = "";
+				Collections.sort(hashtags, String.CASE_INSENSITIVE_ORDER);
+				
+				for(String ht : hashtags){
+					iden= iden+"_"+ht;
+				}
+				
+				try{
+					iden = iden.substring(1, iden.length());
+					System.out.println(iden);
+					incommingData.put("media_url", "");
+					addDataToBin(iden, incommingData, hashtags);
+				}catch(Exception e){
+					
+					
 				}
 			}
 		}
 
 	}
 
-	private void addDataToBin(String binID, JSONObject data, String identifier) {
+	private void addDataToBin(String binID, JSONObject data, ArrayList<String> hashtags) {
 
 		if (tweetBins.containsKey(binID)) {
 			tweetBins.get(binID).getBinItems().add(data);
 			tweetBins.get(binID).setNewDatatoInsert(true);
 			getRabbitMQServerOutbound().emitDataToChannel("internal_cache", tweetBins.get(binID).getJSONRepresentation());
-			// System.out.println("Active Bin Size: "+tweetBins.get(binID).getBinItems().size());
+		    //System.out.println("Active Bin Size: "+tweetBins.get(binID).getBinItems().size());
 		} else {
 			TwitterBin newBin = new TwitterBin();
 			newBin.setBinName(binID);
 			newBin.setBinStartTimestamp(new Date());
 			newBin.setBinIdentfier("#");
 			newBin.getBinItems().add(data);
+			newBin.setIdentifiers(hashtags);
 			newBin.setNewDatatoInsert(true);
 			tweetBins.put(binID, newBin);
 			getRabbitMQServerOutbound().emitDataToChannel("internal_cache", newBin.getJSONRepresentation());
-			// System.out.println("new Bin Created for String:"+binID);
+			//System.out.println("new Bin Created for String:"+binID);
 		}
 
 		if (checkBinsforSize()) {
@@ -193,11 +247,11 @@ public class BinManager {
 		if (tweetBinsActive.containsKey(binToProcess.getBinName())) {
 			// This is not a new project, so we dont need to insert a new
 			// project Object!
-			getRabbitMQServerOutbound().emitDataToChannel("active_project", createProjectObject(binToProcess.getBinName()));
+			getRabbitMQServerOutbound().emitDataToChannel("active_project", createProjectObject(binToProcess.getBinName(), binToProcess.getIdentifiers()));
 			insertNewbinData(binToProcess);
 		} else {
 			// create new project entry!
-			if (createNewProjectDBEntry(binToProcess.getBinName())) {
+			if (createNewProjectDBEntry(binToProcess.getBinName(), binToProcess.getIdentifiers())) {
 				// then insert the bin.
 				insertNewbinData(binToProcess);
 			}
@@ -242,17 +296,26 @@ public class BinManager {
 
 	}
 
-	private boolean createNewProjectDBEntry(String binName) {
+	private boolean createNewProjectDBEntry(String binName, ArrayList<String> identifiers) {
 
 		// first we need to a check to see if the project already exists in the
 		// DB...
 		if (!dbControllerProjects.queryCollectionForExistingProjectName("project_list", binName)) {
 			try {
-				dbControllerProjects.InsertDataIntoCollection("project_list",createProjectObject(binName));
+				dbControllerProjects.InsertDataIntoCollection("project_list",createProjectObject(binName,identifiers));
 				dbControllerBins.connectToCollection(binName);
 				return true;
 			} catch (Exception e) {
 				e.printStackTrace();
+				try{
+					if(resetDatabaseConnections()){
+						//recurseive.
+						createNewProjectDBEntry(binName, identifiers);
+					}
+					
+				}catch(Exception e1){
+					
+				}
 				return false;
 			}
 		} else {
@@ -298,7 +361,7 @@ public class BinManager {
 	 * boolean, "observed": yyyy:mm:ddThh:mm:ss, "identifier": "String",
 	 * "category": "String", "bin_ids": [], }
 	 */
-	private JSONObject createProjectObject(String binName) {
+	private JSONObject createProjectObject(String binName, ArrayList<String> identifiers) {
 
 		JSONObject proj = new JSONObject();
 		proj.put("project_id", "");
@@ -307,10 +370,12 @@ public class BinManager {
 		proj.put("project_end_timestamp", "");
 		proj.put("project_status", "empty");
 		proj.put("observed", MiscFunctions.convertDateTimeToString(new Date()));
-		proj.put("identifier", binName);
+		proj.put("bin_id", binName);
 		JSONArray binIDs = new JSONArray();
-		binIDs.add(binName);
-		proj.put("bin_ids", binIDs);
+		for(String hashtag : identifiers){
+			binIDs.add(hashtag);
+		}
+		proj.put("identifiers", binIDs);
 		return proj;
 	}
 
@@ -321,5 +386,21 @@ public class BinManager {
 	public ObserverRabbitServer getRabbitMQServerOutbound() {
 		return rabbitMQServerOutbound;
 	}
+	
+	
+	public void setBlackListWords(JSONObject blacklistConfig) {
+		
+		blackListWords = new HashMap<String, Boolean>();
+		JSONArray words = blacklistConfig.getJSONArray("blacklist_words");
+		for(int i=0; i<words.size(); i++){
+			blackListWords.put(words.getString(i), true);
+		}
+		
+		
+		this.blackListWords = blackListWords;
+	}public HashMap<String, Boolean> getBlackListWords() {
+		return blackListWords;
+	}
+	
 
 }

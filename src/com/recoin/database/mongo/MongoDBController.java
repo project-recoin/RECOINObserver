@@ -144,8 +144,7 @@ public class MongoDBController {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.err
-					.println("Couldn't find existing project entry!");
+			System.err.println("Couldn't find existing project entry!");
 			return false;
 		}
 
@@ -154,7 +153,7 @@ public class MongoDBController {
 	public static void main(String[] args) {
 
 		MongoDBController test_controller = new MongoDBController(
-				"recoin.cloudapp.net", "observer", "password12345");
+				"recoin.cloudapp.net", "c", "password12345");
 		test_controller.connectToDatabase("RECOIN_bins");
 		test_controller.connectToCollection("test");
 
@@ -172,6 +171,11 @@ public class MongoDBController {
 //			test_controller.InsertDataIntoCollection("test", obj);
 //			cnt++;
 //		}
+	}
+	
+	
+	public DB getDatabase() {
+		return database;
 	}
 
 }

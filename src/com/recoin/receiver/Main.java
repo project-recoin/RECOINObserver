@@ -43,6 +43,16 @@ public class Main {
 		}catch(Exception e){
 			System.exit(1);
 		}
+		
+		
+		//blacklist_words
+		JSONObject blacklistWords = null;
+		try{
+			blacklistWords = MiscFunctions.loadKeys("config/blacklist_config.json");
+			System.out.println("RabbitMQ server Config found");
+		}catch(Exception e){
+			System.exit(1);
+		}
 
 		
 		ObserverRabbitServer outboundRabbitServer =  new ObserverRabbitServer(rabbitConfig);
@@ -70,6 +80,9 @@ public class Main {
 		BinManager binManager = new BinManager(config);
 		
 		binManager.setRabbitMQController(outboundRabbitServer);
+		
+		binManager.setBlackListWords(blacklistWords);
+		
 		JSONObject dataToProcess;
 		while (true) {
 			

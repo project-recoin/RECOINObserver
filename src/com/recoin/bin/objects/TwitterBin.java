@@ -18,12 +18,15 @@ public class TwitterBin {
 	private String binIdentfier;
 	private boolean newDatatoInsert;
 	private JSONObject jsonRepresentation;
+	private ArrayList<String> identifiers;
+
 
 	public TwitterBin() {
 
 		binItems = new ArrayList<JSONObject>();
 		submittedToDatabaseBinSize = 0;
 		newDatatoInsert = false;
+		identifiers = new ArrayList<String>();
 	}
 
 	public void setID(String iD) {
@@ -101,8 +104,13 @@ public class TwitterBin {
 		jsonRepresentation.put("bin_name", BinName);
 		jsonRepresentation.put("bin_size", binItems.size());
 		jsonRepresentation.put("timestamp", MiscFunctions.convertDateTimeToString(binStartTimestamp));
-
 		return jsonRepresentation;
+	}
+	
+	public void setIdentifiers(ArrayList<String> identifiers) {
+		this.identifiers = identifiers;
+	}public ArrayList<String> getIdentifiers() {
+		return identifiers;
 	}
 	
 }
