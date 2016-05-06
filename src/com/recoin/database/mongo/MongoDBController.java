@@ -153,7 +153,7 @@ public class MongoDBController {
 	public static void main(String[] args) {
 
 		MongoDBController test_controller = new MongoDBController(
-				"recoin.cloudapp.net", "c", "password12345");
+				"recoin.cloudapp.net", "observer", "password12345");
 		test_controller.connectToDatabase("RECOIN_bins");
 		test_controller.connectToCollection("test");
 

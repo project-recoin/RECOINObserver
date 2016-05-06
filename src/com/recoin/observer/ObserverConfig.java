@@ -9,6 +9,10 @@ public class ObserverConfig {
 	private int binDropTimeout_hours;
 	private int maxBins;
 	private boolean includeRetweets;
+	private String observer_mongodb_hostname;
+	private String observer_mongodb_username;
+	private String observer_mongodb_password;
+
 
 	
 	
@@ -24,7 +28,10 @@ public class ObserverConfig {
 		this.binDropTimeout_hours = keys.getInt("timeout_hours");
 		this.maxBins = keys.getInt("max_bins");
 		this.includeRetweets = keys.getBoolean("includeRetweets_bool");
-	
+		this.observer_mongodb_hostname = keys.getString("observer_mongodb_hostname");
+		this.observer_mongodb_username = keys.getString("observer_mongodb_username");
+		this.observer_mongodb_password = keys.getString("observer_mongodb_password");
+
 	}
 	
 	
@@ -47,6 +54,18 @@ public class ObserverConfig {
 		return binDropTimeout_hours;
 	}public boolean getIncludeRetweets() {
 		return includeRetweets;
+	}public void setObserver_mongodb_username(String observer_mongodb_username) {
+		this.observer_mongodb_username = observer_mongodb_username;
+	}public void setObserver_mongodb_password(String observer_mongodb_password) {
+		this.observer_mongodb_password = observer_mongodb_password;
+	}public void setObserver_mongodb_hostname(String observer_mongodb_hostname) {
+		this.observer_mongodb_hostname = observer_mongodb_hostname;
+	}public String getObserver_mongodb_username() {
+		return observer_mongodb_username;
+	}public String getObserver_mongodb_password() {
+		return observer_mongodb_password;
+	}public String getObserver_mongodb_hostname() {
+		return observer_mongodb_hostname;
 	}
 	
 	

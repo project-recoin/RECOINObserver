@@ -3,6 +3,9 @@
 	"timeout_hours": "48",
 	"max_bins": "1000",
 	"includeRetweets_bool": "false",
+	"observer_mongodb_hostname": "localhost",
+	"observer_mongodb_username": "observer",
+	"observer_mongodb_username": "password12345",
 }
 
 

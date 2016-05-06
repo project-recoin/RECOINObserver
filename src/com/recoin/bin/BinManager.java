@@ -32,6 +32,10 @@ public class BinManager {
 	
 	MongoDBController dbControllerProjects;
 	MongoDBController dbControllerBins;
+	
+	private String observer_mongodb_hostname;
+	private String observer_mongodb_username;
+	private String observer_mongodb_password;
 
 	Pattern p = Pattern.compile("[^a-zA-Z0-9]");
 
@@ -60,8 +64,10 @@ public class BinManager {
 		this.maxBins = config.getMaxBins();
 		this.includeRetweets = config.getIncludeRetweets();
 		this.binDropHours = config.getBinDropTimeout_hours();
-		
-		
+		this.observer_mongodb_hostname = config.getObserver_mongodb_hostname();
+		this.observer_mongodb_username = config.getObserver_mongodb_username();
+		this.observer_mongodb_password = config.getObserver_mongodb_password();
+
 		System.out.printf("Bin Manager Configured, threshold: %d \n"
 				+ "maxBins %d \n"
 				+ "includeRetweets: %s \n"
@@ -99,8 +105,8 @@ public class BinManager {
 	
 	private boolean initProjDBConnection() {
 		try {
-			dbControllerProjects = new MongoDBController("recoin.cloudapp.net",
-					"observer", "password12345");
+			dbControllerProjects = new MongoDBController(observer_mongodb_hostname,
+					observer_mongodb_username, observer_mongodb_password);
 			dbControllerProjects.connectToDatabase("RECOIN_projects");
 			dbControllerProjects.connectToCollection("project_list");
 			return true;
@@ -111,8 +117,8 @@ public class BinManager {
 
 	private boolean initBinsDBConnection() {
 		try {
-			dbControllerBins = new MongoDBController("recoin.cloudapp.net",
-					"observer", "password12345");
+			dbControllerProjects = new MongoDBController(observer_mongodb_hostname,
+					observer_mongodb_username, observer_mongodb_password);
 			dbControllerBins.connectToDatabase("RECOIN_bins");
 			return true;
 		} catch (Exception e) {
