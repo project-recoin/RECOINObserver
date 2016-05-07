@@ -1,11 +1,12 @@
 {
-	"binThresholdValue_tweets": "10",
+	"binThresholdValue_tweets": "2",
 	"timeout_hours": "48",
 	"max_bins": "1000",
 	"includeRetweets_bool": "false",
-	"observer_mongodb_hostname": "localhost",
-	"observer_mongodb_username": "observer",
-	"observer_mongodb_password": "password12345"
+	"observer_mongodb_hostname": "recoin.cloudapp.net",
+	"observer_mongodb_port": "27017",
+	"observer_mongodb_username": "",
+	"observer_mongodb_password": ""
 }
 
 

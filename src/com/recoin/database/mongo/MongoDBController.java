@@ -93,7 +93,7 @@ public class MongoDBController {
 					+ coll.getName());
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			System.err
 					.println("Couldn't connect to MongoDB, check your settings!");
 			return false;
@@ -183,6 +183,15 @@ public class MongoDBController {
 		
 		
 		test_controller.queryCollectionForExistingProjectName("test", "testProject");
+		
+		test_controller.connectToDatabase("RECOIN_projects");
+		test_controller.connectToCollection("project_list");
+
+		test_controller.InsertDataIntoCollection("project_list", obj);
+
+		test_controller.queryCollectionForExistingProjectName("project_list", "testProject");
+
+		
 		
 //		int cnt = 0;
 //		while (cnt < 1000) {

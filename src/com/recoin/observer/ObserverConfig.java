@@ -12,6 +12,7 @@ public class ObserverConfig {
 	private String observer_mongodb_hostname;
 	private String observer_mongodb_username;
 	private String observer_mongodb_password;
+	private int observer_mongodb_port;
 
 
 	
@@ -31,7 +32,7 @@ public class ObserverConfig {
 		this.observer_mongodb_hostname = keys.getString("observer_mongodb_hostname");
 		this.observer_mongodb_username = keys.getString("observer_mongodb_username");
 		this.observer_mongodb_password = keys.getString("observer_mongodb_password");
-
+		this.observer_mongodb_port = keys.getInt("observer_mongodb_port");
 	}
 	
 	
@@ -66,6 +67,10 @@ public class ObserverConfig {
 		return observer_mongodb_password;
 	}public String getObserver_mongodb_hostname() {
 		return observer_mongodb_hostname;
+	}public int getObserver_mongodb_port() {
+		return observer_mongodb_port;
+	}public void setObserver_mongodb_port(int observer_mongodb_port) {
+		this.observer_mongodb_port = observer_mongodb_port;
 	}
 	
 	

@@ -87,11 +87,10 @@ public class Main {
 		
 		JSONObject dataToProcess;
 		while (true) {
-			
 			QueueingConsumer.Delivery delivery = consumer.nextDelivery();
 			String message = new String(delivery.getBody());
 			dataToProcess = (JSONObject) JSONSerializer.toJSON(message);
-			// System.out.println(jsonClassEntry.toString(4));
+			//System.out.println(jsonClassEntry.toString(4));
 			binManager.processData(dataToProcess);
 		}
 	}

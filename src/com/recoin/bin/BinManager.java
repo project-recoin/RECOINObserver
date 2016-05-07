@@ -36,6 +36,7 @@ public class BinManager {
 	private String observer_mongodb_hostname;
 	private String observer_mongodb_username;
 	private String observer_mongodb_password;
+	private int observer_mongodb_port;
 
 	Pattern p = Pattern.compile("[^a-zA-Z0-9]");
 
@@ -67,6 +68,7 @@ public class BinManager {
 		this.observer_mongodb_hostname = config.getObserver_mongodb_hostname();
 		this.observer_mongodb_username = config.getObserver_mongodb_username();
 		this.observer_mongodb_password = config.getObserver_mongodb_password();
+		this.observer_mongodb_port = config.getObserver_mongodb_port();
 
 		System.out.printf("Bin Manager Configured, threshold: %d \n"
 				+ "maxBins %d \n"
@@ -105,8 +107,7 @@ public class BinManager {
 	
 	private boolean initProjDBConnection() {
 		try {
-			dbControllerProjects = new MongoDBController(observer_mongodb_hostname,
-					observer_mongodb_username, observer_mongodb_password);
+			dbControllerProjects = new MongoDBController(observer_mongodb_hostname,observer_mongodb_port);
 			dbControllerProjects.connectToDatabase("RECOIN_projects");
 			dbControllerProjects.connectToCollection("project_list");
 			return true;
@@ -117,8 +118,7 @@ public class BinManager {
 
 	private boolean initBinsDBConnection() {
 		try {
-			dbControllerProjects = new MongoDBController(observer_mongodb_hostname,
-					observer_mongodb_username, observer_mongodb_password);
+			dbControllerBins = new MongoDBController(observer_mongodb_hostname,observer_mongodb_port);
 			dbControllerBins.connectToDatabase("RECOIN_bins");
 			return true;
 		} catch (Exception e) {
