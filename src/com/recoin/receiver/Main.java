@@ -32,7 +32,9 @@ public class Main {
 		ObserverConfig config = null;
 		try{
 			config = new ObserverConfig(MiscFunctions.loadKeys("config/observer_config.json"));
+			System.out.println("Observer Config found/Loaded");
 		}catch(Exception e){
+			e.printStackTrace();
 			System.exit(1);
 		}
 
@@ -49,7 +51,7 @@ public class Main {
 		JSONObject blacklistWords = null;
 		try{
 			blacklistWords = MiscFunctions.loadKeys("config/blacklist_config.json");
-			System.out.println("RabbitMQ server Config found");
+			System.out.println("Blacklist server Config found");
 		}catch(Exception e){
 			System.exit(1);
 		}

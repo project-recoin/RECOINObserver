@@ -28,6 +28,7 @@ public class MongoDBController {
 	private DB database;
 	private MongoClient client;
 	private HashMap<String, DBCollection> collections;
+	private int port;
 
 	// private String collectionName;
 
@@ -41,18 +42,28 @@ public class MongoDBController {
 		collections = new HashMap<String, DBCollection>();
 
 	}
+	
+	public MongoDBController(String serverAddress, int port) {
+
+		this.serverAddress = serverAddress;
+		this.port = port;
+		// collectionName = "";
+		collections = new HashMap<String, DBCollection>();
+
+	}
 
 	public boolean connectToDatabase(String databaseName) {
 
 		try {
 			this.databaseName = databaseName;
-			MongoCredential credentials = MongoCredential
-					.createMongoCRCredential(username, databaseName,
-							password.toCharArray());
+//			MongoCredential credentials = MongoCredential
+//					.createMongoCRCredential(username, databaseName,
+//							password.toCharArray());
+			
+			
 			// String conn =
 			// "mongodb://"+username+":"+password+"@"+serverAddress+"/"+databaseName;
-			client = new MongoClient(new ServerAddress(serverAddress),
-					Arrays.asList(credentials));
+			client = new MongoClient(serverAddress, port);
 			// System.out.println(client.getDatabaseNames());
 			database = client.getDB(databaseName);
 
@@ -151,9 +162,18 @@ public class MongoDBController {
 	}
 
 	public static void main(String[] args) {
+		
+//		try{
+//		 MongoClient mongoClient2 = new MongoClient("recoin.cloudapp.net", 27017);
+//		 
+//		 System.out.println(mongoClient2.getDatabaseNames());
+//		 
+//		}catch(Exception e){
+//			e.printStackTrace();
+//			
+//		}
 
-		MongoDBController test_controller = new MongoDBController(
-				"recoin.cloudapp.net", "observer", "password12345");
+		MongoDBController test_controller = new MongoDBController("recoin.cloudapp.net", 27017);
 		test_controller.connectToDatabase("RECOIN_bins");
 		test_controller.connectToCollection("test");
 

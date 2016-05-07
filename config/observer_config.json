@@ -5,7 +5,7 @@
 	"includeRetweets_bool": "false",
 	"observer_mongodb_hostname": "localhost",
 	"observer_mongodb_username": "observer",
-	"observer_mongodb_username": "password12345",
+	"observer_mongodb_password": "password12345"
 }
 
 
