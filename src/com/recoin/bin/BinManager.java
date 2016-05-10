@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import com.recoin.bin.objects.KrumbsMethods;
 import com.recoin.bin.objects.TwitterBin;
 import com.recoin.database.mongo.MongoDBController;
 import com.recoin.functions.MiscFunctions;
@@ -197,6 +198,37 @@ public class BinManager {
 
 	}
 
+	public void processDataFromKrumbs(JSONObject incommingData) {
+
+
+			boolean toProcess = false;
+			
+			String iden = "";
+			try{
+				iden = incommingData.getJSONArray("media").getJSONObject(0).getJSONArray("why").getJSONObject(0).getString("intent_name");
+				//System.out.println(iden);
+				toProcess = true;
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		
+			if(toProcess){
+				try{
+//					iden = iden.substring(1, iden.length());
+					JSONObject newDataFormat = KrumbsMethods.convertKrumbsObjectToBinObject(incommingData);
+					System.out.println(newDataFormat);
+					//incommingData.put("media_url", "");
+					addDataToBin(iden, newDataFormat, new ArrayList<String>());
+				}catch(Exception e){
+					e.printStackTrace();
+					
+				}
+			}
+		
+
+	}
+	
+	
 	private void addDataToBin(String binID, JSONObject data, ArrayList<String> hashtags) {
 
 		if (tweetBins.containsKey(binID)) {
