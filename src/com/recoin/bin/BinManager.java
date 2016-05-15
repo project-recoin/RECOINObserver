@@ -20,6 +20,8 @@ import com.recoin.observer.api.ObserverRabbitServer;
 
 public class BinManager {
 
+	private JSONObject blacklistwordsJSON;
+	private ObserverConfig observerConfig;
 	private HashMap<String, TwitterBin> tweetBins;
 	private HashMap<String, Boolean> tweetBinsActive;
 
@@ -59,6 +61,7 @@ public class BinManager {
 
 	public BinManager(ObserverConfig config) {
 		
+		this.observerConfig = config;
 		tweetBins = new HashMap<String, TwitterBin>();
 		tweetBinsActive = new HashMap<String, Boolean>();
 		
@@ -427,7 +430,7 @@ public class BinManager {
 	
 	
 	public void setBlackListWords(JSONObject blacklistConfig) {
-		
+		this.blacklistwordsJSON = blacklistConfig;
 		blackListWords = new HashMap<String, Boolean>();
 		JSONArray words = blacklistConfig.getJSONArray("blacklist_words");
 		for(int i=0; i<words.size(); i++){
@@ -438,6 +441,22 @@ public class BinManager {
 		this.blackListWords = blackListWords;
 	}public HashMap<String, Boolean> getBlackListWords() {
 		return blackListWords;
+	}
+	
+	public HashMap<String, TwitterBin> getTweetBins() {
+		return tweetBins;
+	} public int getBinDropHours() {
+		return binDropHours;
+	}public int getMaxBins() {
+		return maxBins;
+	}public int getBinThreshold() {
+		return binThreshold;
+	}public HashMap<String, Boolean> getTweetBinsActive() {
+		return tweetBinsActive;
+	}public ObserverConfig getObserverConfig() {
+		return observerConfig;
+	}public JSONObject getBlacklistwordsJSON() {
+		return blacklistwordsJSON;
 	}
 	
 

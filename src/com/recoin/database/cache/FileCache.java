@@ -12,11 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 
-import org.apache.commons.io.IOUtils;
 
 public class FileCache {
 	

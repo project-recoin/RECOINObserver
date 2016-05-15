@@ -4,6 +4,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.QueueingConsumer;
+import com.recoin.REST.ObserverRESTAPI;
 import com.recoin.bin.BinManager;
 import com.recoin.functions.MiscFunctions;
 import com.recoin.observer.ObserverConfig;
@@ -84,6 +85,9 @@ public class Main {
 		binManager.setRabbitMQController(outboundRabbitServer);
 		
 		binManager.setBlackListWords(blacklistWords);
+		
+		ObserverRESTAPI observerRESTApi = new ObserverRESTAPI(binManager); 
+		
 		
 		JSONObject dataToProcess;
 		while (true) {

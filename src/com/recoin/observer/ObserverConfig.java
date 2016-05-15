@@ -72,6 +72,25 @@ public class ObserverConfig {
 	}public void setObserver_mongodb_port(int observer_mongodb_port) {
 		this.observer_mongodb_port = observer_mongodb_port;
 	}
+
+
+
+	public String getJSONRepresentation() {
+
+		JSONObject json = new JSONObject();
+		json.put("binthreshHoldValue_tweets", binthreshHoldValue_tweets);
+		json.put("binDropTimeout_hours", binDropTimeout_hours);
+		json.put("maxBins", maxBins);
+		json.put("includeRetweets", includeRetweets);
+		json.put("observer_mongodb_hostname", observer_mongodb_hostname);
+		json.put("observer_mongodb_port", observer_mongodb_port);
+		
+		return json.toString(4);
+		
+		
+		
+		
+	}
 	
 	
 	
